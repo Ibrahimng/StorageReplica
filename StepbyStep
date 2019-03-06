@@ -1,0 +1,146 @@
+How to configure Storage Replica With Windows Admin Center in Windows Server 2019
+ 
+Introduction
+
+Storage Replica. This new feature in Windows Server 2016 enables replication—between servers or clusters that are in the same location or different sites—for disaster recovery. Storage Replica includes both synchronous and asynchronous replication for shorter or longer distance between sites.
+
+– Synchronous replication mirrors data within a low-latency network site with crash-consistent volumes to ensure zero data loss at the file-system level during a failure.
+
+– Asynchronous replication mirrors data across sites beyond metropolitan ranges over network links with higher latencies, but without a guarantee that both sites have identical copies of the data at the time of a failure.
+
+More on Storage Replica you can find here.
+
+Windows Admin Center
+
+Windows Admin Center is designed for IT Administrators who manage Windows Server and Windows. Typically, these people open many different consoles, like event viewer, device manager, disk management, task manager or server manager – the list continues. The aim of Windows Admin Center is to simplify and streamline the experience.
+
+More on Windows Admin Center you can find here.
+
+Purpose
+
+To explain in detail the steps how to configure Storage Replica with Windows Admin Center on Windows Server 2019
+
+Prerequisites
+
+Active Directory Domain Services forest (doesn’t need to run Windows Server 2016).
+Two servers with Windows Server 2019 Datacenter Edition or Standard Edition installed.
+Two sets of storage, using SAS JBODs, fiber channel SAN, iSCSI target, or local SCSI/SATA storage. The storage should contain a mix of HDD and SSD media. You will make each storage set available only to each of the servers, with no shared access.
+Each set of storage must allow the creation of at least two virtual disks, one for replicated data and one for logs. The physical storage must have the same sector sizes on all the data disks and on all the log disks.
+At least one Ethernet/TCP connection on each server for synchronous replication, but preferably RDMA.
+Appropriate firewall and router rules to allow ICMP, SMB (port 445, plus 5445 for SMB Direct) and WS-MAN (port 5985) bi-directional traffic between all nodes.
+A network between servers with enough bandwidth to contain your IO write workload and an average of =5ms round-trip latency, for synchronous replication. Asynchronous replication doesn’t have a latency recommendation.
+If you’re replicating between on-premises servers and Azure VMs, you should create a network link between the on-premises servers and the Azure VMs. To do so, use Express Route, a Site-to-Site VPN gateway connection, or install VPN software in your Azure VMs to connect them with your on-premises network.
+The replicated storage cannot be located on the drive containing the Windows operating system folder.
+Important
+
+In this scenario, each server should be in a different physical or logical site. Each server must be able to communicate with the other via a network.
+
+ 
+
+Steps to follow:
+
+For the purpose of this tutorial, I created four virtual machines on Hyper-V.
+
+One VM is a Windows 10 Enterprise edition.
+One VM is Windows Server 2019 Datacentre Edition with installed and configured domain (if you want to know how to configure a domain controller, read here).
+Two VMs are Windows Server 2019 Datacentre Edition.
+ 
+
+Every server and PC that is going to be used need to be on a domain. There should be no workgroup configuration.
+Install Storage Replica Feature on the server that you are going to use for replication (on both of them).
+Download Windows Admin Center on the Client PC (preferable Windows 10 Enterprise edition or Pro edition) from here.
+
+
+Install Windows Admin center as follows:
+Read and Accept the terms in the License Agreement
+
+
+Choose the recommended option to use Microsoft update:
+
+
+Configure Gateway Endpoint (use Default) and select the „Create a desktop shortcut to launch Windows Admin Center“
+
+
+Select the Windows Admin Client Certificate and click Finish (preferable is to check the box by „Open Windows Admin Center“
+
+
+Open Windows Admin Center on the Client PC and click Add
+
+
+Click Add Server Connection
+
+
+On Add Server Connection page, you need to enter the Server name of the First server which has installed the Storage Replica feature, i.e. the name of the server that needs to be replicated to another one. (Note: you will need to add both servers.)
+
+
+After you add the Servers it should look like this
+
+
+Click on Storage Replica on the left side of Windows Admin Center window
+
+
+If you get the message „Install the Remote Server Administration Tools on this PC and then restart“ click the link to „Download and install Remote Server Administration Tools“ and follow the next steps
+
+
+Click Download
+
+
+Choose the version that suits your version of Client PC OS
+
+
+When the Installation Completes, click „Restart Now“
+
+
+After the restart, run again Windows Admin Center, select Server 1 and click Storage replica. If the installation was successful you will get the Storage replica options on the right side of Windows Admin Center windows.
+
+
+Click “Partnerships” and then click “New”
+
+
+Enter the “Source computer name”, “Source replication group name” and select Source volume and Source log volume that you want as Source.
+
+
+Scroll down on the same page and enter the “Destination computer name”, “Destination replication group name”, “Destination volume” and “Destination log volume”
+
+
+When you have entered all the needed information click create
+
+
+When you click create, the “Bell” in the upper right corner is displaying a message, when you click on it you will see the progression of creating the Storage Replica between the two servers.
+
+
+Wait for it to complete with the message “New Partnership succeeded”
+
+
+You will now get the Partnership status of Storage replica. Only when you get a “Checked” status the partnership is completed.
+
+
+By clicking on the Replicated Volume, you will be able to see the source and destination server with their “View performance”
+
+
+The Performance view allows you to see the statics of the drive you are replicating
+
+
+Also, there is an Event Viewer tab where you can see the progress, Admin, Debug, Operational, Performance options.
+
+
+On Storage Replica site, in Partnership option click “More” to get the options to Suspend, Resume, Switch direction and Settings
+
+
+The best on Storage replica beside the GUI on performance is the “Add Volume” option to get extra storage disks
+
+
+On the Settings Option, You get to switch between Synchronous replication and Asynchronous replication, add Encryption and change size of the Log
+
+
+Summary
+
+Storage Replica is hardware agnostic. The storage replication feature is software-based and does not have any reliance on proprietary storage hardware. The replication is based on the SMB 3.0 protocol without risk of data loss from one side to another. The storage replication feature is also specifically designed to work with commodity storage hardware and commodity networking hardware.
+
+By stretching clusters or replicating clusters, workloads can be run in multiple data centers for quicker data access by local proximity users and applications, as well as better load distribution.
+
+Storage Replica may allow you to decommission existing file replication systems such as DFS Replication that was pressed into duty as low-end disaster recovery solutions. While DFS Replication works well over extremely low bandwidth networks, its latency is very high – often measured in hours or days. This is caused by its requirement for files to close and its artificial throttles meant to prevent network congestion. Storage Replica operates below the file level and has none of these restrictions.
+
+Storage Replica also supports asynchronous replication for longer ranges and higher latency networks. Because it is not checkpoint-based, and instead continuously replicates, the delta of changes will tend to be far lower than snapshot-based products. SR operates at the partition layer and therefore replicates all VSS snapshots created by Windows Server or backup software; this allows the use of application-consistent data snapshots for a point in time recovery, especially unstructured user data replicated asynchronously.
+
+Storage Replica Rulez!
