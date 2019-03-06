@@ -8,13 +8,11 @@ Storage Replica. This new feature in Windows Server 2016 enables replication—b
 
 – Asynchronous replication mirrors data across sites beyond metropolitan ranges over network links with higher latencies, but without a guarantee that both sites have identical copies of the data at the time of a failure.
 
-More on Storage Replica you can find here.
 
 Windows Admin Center
 
 Windows Admin Center is designed for IT Administrators who manage Windows Server and Windows. Typically, these people open many different consoles, like event viewer, device manager, disk management, task manager or server manager – the list continues. The aim of Windows Admin Center is to simplify and streamline the experience.
 
-More on Windows Admin Center you can find here.
 
 Purpose
 
